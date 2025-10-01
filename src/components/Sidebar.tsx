@@ -1,11 +1,12 @@
 import { Home, BookOpen, Calendar, Settings, User } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import logo from "@/assets/usm-logo.png";
 
 const navItems = [
   { title: "Inicio", icon: Home, path: "/" },
-  { title: "Mis Asignaturas", icon: BookOpen, path: "/" },
-  { title: "Calendario", icon: Calendar, path: "/" },
+  { title: "Mis Asignaturas", icon: BookOpen, path: "/asignaturas" },
+  { title: "Calendario", icon: Calendar, path: "/calendario" },
   { title: "Perfil", icon: User, path: "/perfil" },
   { title: "Configuración", icon: Settings, path: "/configuracion" },
 ];
@@ -15,8 +16,13 @@ export function Sidebar() {
     <aside className="fixed left-0 top-0 h-screen w-64 bg-sidebar border-r border-sidebar-border">
       <div className="flex flex-col h-full">
         <div className="p-6 border-b border-sidebar-border">
-          <h1 className="text-xl font-bold text-sidebar-foreground">Campus Virtual</h1>
-          <p className="text-sm text-sidebar-foreground/70 mt-1">Universidad Ejemplo</p>
+          <div className="flex items-center gap-3 mb-3">
+            <img src={logo} alt="USM Logo" className="h-12 w-12 object-contain" />
+            <div>
+              <h1 className="text-lg font-bold text-sidebar-foreground leading-tight">Campus Virtual</h1>
+              <p className="text-xs text-sidebar-foreground/70">UTF Santa María</p>
+            </div>
+          </div>
         </div>
         
         <nav className="flex-1 p-4">
