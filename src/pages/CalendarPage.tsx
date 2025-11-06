@@ -1,8 +1,10 @@
 import { Sidebar } from "@/components/Sidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Clock } from "lucide-react";
+import { Calendar as CalendarIcon, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Calendar } from "@/components/ui/calendar";
+import { useState } from "react";
 
 interface CalendarEvent {
   id: string;
@@ -102,6 +104,8 @@ const typeLabels = {
 };
 
 const CalendarPage = () => {
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  
   const sortedEvents = [...events].sort((a, b) => 
     new Date(a.date).getTime() - new Date(b.date).getTime()
   );
@@ -109,6 +113,15 @@ const CalendarPage = () => {
   const upcomingEvents = sortedEvents.slice(0, 5);
   const exams = sortedEvents.filter(e => e.type === "exam");
   const assignments = sortedEvents.filter(e => e.type === "assignment");
+  
+  const selectedDateEvents = selectedDate 
+    ? sortedEvents.filter(event => {
+        const eventDate = new Date(event.date);
+        return eventDate.toDateString() === selectedDate.toDateString();
+      })
+    : [];
+  
+  const eventDates = new Set(events.map(e => new Date(e.date).toDateString()));
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -116,161 +129,224 @@ const CalendarPage = () => {
       
       <main className="flex-1 ml-64">
         <header className="bg-card border-b border-border sticky top-0 z-10">
-          <div className="px-8 py-6">
-            <h1 className="text-3xl font-bold text-foreground">Calendario Académico</h1>
-            <p className="text-muted-foreground mt-1">Todas tus evaluaciones y eventos</p>
+          <div className="px-6 py-4">
+            <h1 className="text-2xl font-bold text-foreground">Calendario Académico</h1>
+            <p className="text-muted-foreground text-sm">Todas tus evaluaciones y eventos</p>
           </div>
         </header>
 
-        <div className="p-8">
-          <Tabs defaultValue="all" className="w-full">
-            <TabsList>
-              <TabsTrigger value="all">Todos</TabsTrigger>
-              <TabsTrigger value="exams">Exámenes</TabsTrigger>
-              <TabsTrigger value="assignments">Entregas</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="all" className="mt-6">
+        <div className="p-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="lg:col-span-1">
               <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Calendar className="h-5 w-5" />
-                    Próximos Eventos
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <CalendarIcon className="h-5 w-5" />
+                    Selecciona una Fecha
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {sortedEvents.map((event) => (
-                      <div 
-                        key={event.id} 
-                        className="flex gap-4 p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors border-l-4"
-                        style={{ borderLeftColor: event.color }}
-                      >
-                        <div className="text-center min-w-[80px]">
-                          <p className="text-2xl font-bold text-primary">
-                            {new Date(event.date).getDate()}
-                          </p>
-                          <p className="text-xs text-muted-foreground uppercase">
-                            {new Date(event.date).toLocaleDateString('es-ES', { month: 'short' })}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(event.date).getFullYear()}
-                          </p>
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-start justify-between gap-2">
-                            <div>
-                              <p className="font-medium text-lg">{event.title}</p>
-                              <p className="text-sm text-muted-foreground">{event.course}</p>
-                            </div>
-                            <Badge className={typeColors[event.type]} variant="secondary">
-                              {typeLabels[event.type]}
-                            </Badge>
-                          </div>
-                          <div className="flex items-center gap-1 mt-2 text-sm text-muted-foreground">
-                            <Clock className="h-3 w-3" />
-                            <span>{event.time}</span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                <CardContent className="pb-3">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={setSelectedDate}
+                    className="rounded-md border pointer-events-auto"
+                    modifiers={{
+                      hasEvent: (date) => eventDates.has(date.toDateString())
+                    }}
+                    modifiersClassNames={{
+                      hasEvent: "bg-primary/20 font-bold"
+                    }}
+                  />
                 </CardContent>
               </Card>
-            </TabsContent>
+            </div>
 
-            <TabsContent value="exams" className="mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Calendar className="h-5 w-5" />
-                    Exámenes Programados
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {exams.map((event) => (
-                      <div 
-                        key={event.id} 
-                        className="flex gap-4 p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors border-l-4"
-                        style={{ borderLeftColor: event.color }}
-                      >
-                        <div className="text-center min-w-[80px]">
-                          <p className="text-2xl font-bold text-destructive">
-                            {new Date(event.date).getDate()}
-                          </p>
-                          <p className="text-xs text-muted-foreground uppercase">
-                            {new Date(event.date).toLocaleDateString('es-ES', { month: 'short' })}
-                          </p>
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-start justify-between gap-2">
-                            <div>
-                              <p className="font-medium text-lg">{event.title}</p>
-                              <p className="text-sm text-muted-foreground">{event.course}</p>
-                            </div>
-                            <Badge className={typeColors[event.type]} variant="secondary">
-                              {typeLabels[event.type]}
-                            </Badge>
-                          </div>
-                          <div className="flex items-center gap-1 mt-2 text-sm text-muted-foreground">
-                            <Clock className="h-3 w-3" />
-                            <span>{event.time}</span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+            <div className="lg:col-span-2">
+              <Tabs defaultValue="selected" className="w-full">
+                <TabsList className="w-full">
+                  <TabsTrigger value="selected" className="flex-1">Fecha Seleccionada</TabsTrigger>
+                  <TabsTrigger value="all" className="flex-1">Todos</TabsTrigger>
+                  <TabsTrigger value="exams" className="flex-1">Exámenes</TabsTrigger>
+                  <TabsTrigger value="assignments" className="flex-1">Entregas</TabsTrigger>
+                </TabsList>
 
-            <TabsContent value="assignments" className="mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Calendar className="h-5 w-5" />
-                    Entregas y Tareas
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {assignments.map((event) => (
-                      <div 
-                        key={event.id} 
-                        className="flex gap-4 p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors border-l-4"
-                        style={{ borderLeftColor: event.color }}
-                      >
-                        <div className="text-center min-w-[80px]">
-                          <p className="text-2xl font-bold text-accent">
-                            {new Date(event.date).getDate()}
-                          </p>
-                          <p className="text-xs text-muted-foreground uppercase">
-                            {new Date(event.date).toLocaleDateString('es-ES', { month: 'short' })}
-                          </p>
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-start justify-between gap-2">
-                            <div>
-                              <p className="font-medium text-lg">{event.title}</p>
-                              <p className="text-sm text-muted-foreground">{event.course}</p>
+                <TabsContent value="selected" className="mt-4">
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg">
+                        {selectedDate 
+                          ? `Eventos - ${selectedDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}`
+                          : 'Selecciona una fecha'}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      {selectedDateEvents.length > 0 ? (
+                        <div className="space-y-3">
+                          {selectedDateEvents.map((event) => (
+                            <div 
+                              key={event.id} 
+                              className="flex gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors border-l-4"
+                              style={{ borderLeftColor: event.color }}
+                            >
+                              <div className="flex-1">
+                                <div className="flex items-start justify-between gap-2">
+                                  <div>
+                                    <p className="font-medium">{event.title}</p>
+                                    <p className="text-sm text-muted-foreground">{event.course}</p>
+                                  </div>
+                                  <Badge className={typeColors[event.type]} variant="secondary">
+                                    {typeLabels[event.type]}
+                                  </Badge>
+                                </div>
+                                <div className="flex items-center gap-1 mt-2 text-sm text-muted-foreground">
+                                  <Clock className="h-3 w-3" />
+                                  <span>{event.time}</span>
+                                </div>
+                              </div>
                             </div>
-                            <Badge className={typeColors[event.type]} variant="secondary">
-                              {typeLabels[event.type]}
-                            </Badge>
-                          </div>
-                          <div className="flex items-center gap-1 mt-2 text-sm text-muted-foreground">
-                            <Clock className="h-3 w-3" />
-                            <span>{event.time}</span>
-                          </div>
+                          ))}
                         </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground text-center py-8">
+                          No hay eventos programados para esta fecha
+                        </p>
+                      )}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="all" className="mt-4">
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg">Todos los Eventos</CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <div className="space-y-3 max-h-[600px] overflow-y-auto">
+                        {sortedEvents.map((event) => (
+                          <div 
+                            key={event.id} 
+                            className="flex gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors border-l-4"
+                            style={{ borderLeftColor: event.color }}
+                          >
+                            <div className="text-center min-w-[60px]">
+                              <p className="text-xl font-bold text-primary">
+                                {new Date(event.date).getDate()}
+                              </p>
+                              <p className="text-xs text-muted-foreground uppercase">
+                                {new Date(event.date).toLocaleDateString('es-ES', { month: 'short' })}
+                              </p>
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-start justify-between gap-2">
+                                <div>
+                                  <p className="font-medium">{event.title}</p>
+                                  <p className="text-sm text-muted-foreground">{event.course}</p>
+                                </div>
+                                <Badge className={typeColors[event.type]} variant="secondary">
+                                  {typeLabels[event.type]}
+                                </Badge>
+                              </div>
+                              <div className="flex items-center gap-1 mt-1 text-sm text-muted-foreground">
+                                <Clock className="h-3 w-3" />
+                                <span>{event.time}</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="exams" className="mt-4">
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg">Exámenes Programados</CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <div className="space-y-3 max-h-[600px] overflow-y-auto">
+                        {exams.map((event) => (
+                          <div 
+                            key={event.id} 
+                            className="flex gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors border-l-4"
+                            style={{ borderLeftColor: event.color }}
+                          >
+                            <div className="text-center min-w-[60px]">
+                              <p className="text-xl font-bold text-destructive">
+                                {new Date(event.date).getDate()}
+                              </p>
+                              <p className="text-xs text-muted-foreground uppercase">
+                                {new Date(event.date).toLocaleDateString('es-ES', { month: 'short' })}
+                              </p>
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-start justify-between gap-2">
+                                <div>
+                                  <p className="font-medium">{event.title}</p>
+                                  <p className="text-sm text-muted-foreground">{event.course}</p>
+                                </div>
+                                <Badge className={typeColors[event.type]} variant="secondary">
+                                  {typeLabels[event.type]}
+                                </Badge>
+                              </div>
+                              <div className="flex items-center gap-1 mt-1 text-sm text-muted-foreground">
+                                <Clock className="h-3 w-3" />
+                                <span>{event.time}</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="assignments" className="mt-4">
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg">Entregas y Tareas</CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <div className="space-y-3 max-h-[600px] overflow-y-auto">
+                        {assignments.map((event) => (
+                          <div 
+                            key={event.id} 
+                            className="flex gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors border-l-4"
+                            style={{ borderLeftColor: event.color }}
+                          >
+                            <div className="text-center min-w-[60px]">
+                              <p className="text-xl font-bold text-accent">
+                                {new Date(event.date).getDate()}
+                              </p>
+                              <p className="text-xs text-muted-foreground uppercase">
+                                {new Date(event.date).toLocaleDateString('es-ES', { month: 'short' })}
+                              </p>
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-start justify-between gap-2">
+                                <div>
+                                  <p className="font-medium">{event.title}</p>
+                                  <p className="text-sm text-muted-foreground">{event.course}</p>
+                                </div>
+                                <Badge className={typeColors[event.type]} variant="secondary">
+                                  {typeLabels[event.type]}
+                                </Badge>
+                              </div>
+                              <div className="flex items-center gap-1 mt-1 text-sm text-muted-foreground">
+                                <Clock className="h-3 w-3" />
+                                <span>{event.time}</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            </div>
+          </div>
         </div>
       </main>
     </div>
