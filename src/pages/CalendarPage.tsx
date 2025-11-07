@@ -119,11 +119,16 @@ const CalendarPage = () => {
   const [events, setEvents] = useState<CalendarEvent[]>(initialEvents);
   const [filter, setFilter] = useState<FilterType>("all");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [newEvent, setNewEvent] = useState({
+  const [newEvent, setNewEvent] = useState<{
+    title: string;
+    course: string;
+    time: string;
+    type: "exam" | "assignment" | "custom";
+  }>({
     title: "",
     course: "",
     time: "",
-    type: "custom" as const
+    type: "custom"
   });
 
   const filteredEvents = events.filter(event => {
@@ -165,168 +170,214 @@ const CalendarPage = () => {
     <div className="flex min-h-screen bg-background">
       <Sidebar />
       
-      <main className="flex-1 ml-64">
-        <header className="bg-card border-b border-border sticky top-0 z-10">
-          <div className="px-6 py-4">
-            <h1 className="text-2xl font-bold text-foreground">Calendario Académico</h1>
-            <p className="text-muted-foreground text-sm">Todas tus evaluaciones y eventos</p>
+      <main className="flex-1 ml-64 flex flex-col h-screen overflow-hidden">
+        <header className="bg-card border-b border-border">
+          <div className="px-4 py-3 flex items-center justify-between">
+            <div>
+              <h1 className="text-xl font-bold text-foreground">Calendario Académico</h1>
+              <p className="text-muted-foreground text-xs">Todas tus evaluaciones y eventos</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex gap-1 bg-muted p-1 rounded-lg">
+                <Button
+                  variant={filter === "all" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setFilter("all")}
+                >
+                  Todos
+                </Button>
+                <Button
+                  variant={filter === "exam" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setFilter("exam")}
+                >
+                  Certámenes
+                </Button>
+                <Button
+                  variant={filter === "assignment" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setFilter("assignment")}
+                >
+                  Tareas
+                </Button>
+              </div>
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button size="sm">
+                    <Plus className="h-4 w-4 mr-1" />
+                    Agregar
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Agregar Evento</DialogTitle>
+                    <DialogDescription>
+                      Crea un evento personalizado en tu calendario
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="title">Título</Label>
+                      <Input
+                        id="title"
+                        value={newEvent.title}
+                        onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
+                        placeholder="Nombre del evento"
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="course">Asignatura (opcional)</Label>
+                      <Input
+                        id="course"
+                        value={newEvent.course}
+                        onChange={(e) => setNewEvent({ ...newEvent, course: e.target.value })}
+                        placeholder="Nombre de la asignatura"
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="time">Hora</Label>
+                      <Input
+                        id="time"
+                        type="time"
+                        value={newEvent.time}
+                        onChange={(e) => setNewEvent({ ...newEvent, time: e.target.value })}
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="type">Tipo</Label>
+                      <Select
+                        value={newEvent.type}
+                        onValueChange={(value: "exam" | "assignment" | "custom") => 
+                          setNewEvent({ ...newEvent, type: value })
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="exam">Certamen</SelectItem>
+                          <SelectItem value="assignment">Tarea</SelectItem>
+                          <SelectItem value="custom">Personalizado</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label>Fecha seleccionada</Label>
+                      <p className="text-sm text-muted-foreground">
+                        {selectedDate?.toLocaleDateString('es-ES', { 
+                          day: 'numeric', 
+                          month: 'long', 
+                          year: 'numeric' 
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button onClick={handleAddEvent}>Agregar Evento</Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
         </header>
 
-        <div className="p-6">
-          <div className="flex flex-col lg:flex-row gap-6">
-            {/* Calendario */}
-            <div className="lg:w-2/3">
-              <Card>
-                <CardHeader className="pb-4">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-xl flex items-center gap-2">
-                      <CalendarIcon className="h-5 w-5" />
-                      Calendario
-                    </CardTitle>
-                    <div className="flex items-center gap-2">
-                      <div className="flex gap-1 bg-muted p-1 rounded-lg">
-                        <Button
-                          variant={filter === "all" ? "default" : "ghost"}
-                          size="sm"
-                          onClick={() => setFilter("all")}
-                        >
-                          Todos
-                        </Button>
-                        <Button
-                          variant={filter === "exam" ? "default" : "ghost"}
-                          size="sm"
-                          onClick={() => setFilter("exam")}
-                        >
-                          Exámenes
-                        </Button>
-                        <Button
-                          variant={filter === "assignment" ? "default" : "ghost"}
-                          size="sm"
-                          onClick={() => setFilter("assignment")}
-                        >
-                          Entregas
-                        </Button>
-                      </div>
-                      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                        <DialogTrigger asChild>
-                          <Button size="sm">
-                            <Plus className="h-4 w-4 mr-1" />
-                            Agregar
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Agregar Evento</DialogTitle>
-                            <DialogDescription>
-                              Crea un evento personalizado en tu calendario
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="grid gap-4 py-4">
-                            <div className="grid gap-2">
-                              <Label htmlFor="title">Título</Label>
-                              <Input
-                                id="title"
-                                value={newEvent.title}
-                                onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
-                                placeholder="Nombre del evento"
-                              />
-                            </div>
-                            <div className="grid gap-2">
-                              <Label htmlFor="course">Asignatura (opcional)</Label>
-                              <Input
-                                id="course"
-                                value={newEvent.course}
-                                onChange={(e) => setNewEvent({ ...newEvent, course: e.target.value })}
-                                placeholder="Nombre de la asignatura"
-                              />
-                            </div>
-                            <div className="grid gap-2">
-                              <Label htmlFor="time">Hora</Label>
-                              <Input
-                                id="time"
-                                type="time"
-                                value={newEvent.time}
-                                onChange={(e) => setNewEvent({ ...newEvent, time: e.target.value })}
-                              />
-                            </div>
-                            <div className="grid gap-2">
-                              <Label>Fecha seleccionada</Label>
-                              <p className="text-sm text-muted-foreground">
-                                {selectedDate?.toLocaleDateString('es-ES', { 
-                                  day: 'numeric', 
-                                  month: 'long', 
-                                  year: 'numeric' 
-                                })}
-                              </p>
-                            </div>
-                          </div>
-                          <DialogFooter>
-                            <Button onClick={handleAddEvent}>Agregar Evento</Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <Calendar
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={setSelectedDate}
-                    className="w-full pointer-events-auto border-0"
-                    modifiers={{
-                      hasEvent: (date) => eventDates.has(date.toDateString())
-                    }}
-                    modifiersClassNames={{
-                      hasEvent: "bg-primary/20 font-bold"
-                    }}
-                  />
-                </CardContent>
-              </Card>
-            </div>
+        <div className="flex-1 overflow-auto p-4">
+          <div className="h-full">
+            <style>{`
+              .custom-calendar .rdp-day {
+                position: relative;
+              }
+              .custom-calendar .rdp-day.has-exam::after {
+                content: '';
+                position: absolute;
+                bottom: 2px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 80%;
+                height: 2px;
+                background-color: hsl(var(--destructive));
+              }
+              .custom-calendar .rdp-day.has-assignment::after {
+                content: '';
+                position: absolute;
+                bottom: 2px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 80%;
+                height: 2px;
+                background-color: hsl(var(--accent));
+              }
+              .custom-calendar .rdp-day.has-both::after {
+                content: '';
+                position: absolute;
+                bottom: 2px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 80%;
+                height: 3px;
+                background: linear-gradient(to right, hsl(var(--destructive)) 50%, hsl(var(--accent)) 50%);
+              }
+              .custom-calendar .rdp {
+                --rdp-cell-size: 60px;
+              }
+              .custom-calendar .rdp-months {
+                justify-content: center;
+              }
+            `}</style>
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={setSelectedDate}
+              className="w-full pointer-events-auto border-0 custom-calendar h-full flex items-center justify-center"
+              classNames={{
+                months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+                month: "space-y-4",
+                caption: "flex justify-center pt-1 relative items-center mb-4",
+                caption_label: "text-lg font-bold",
+                nav: "space-x-1 flex items-center",
+                nav_button: "h-9 w-9 bg-transparent p-0 opacity-50 hover:opacity-100",
+                nav_button_previous: "absolute left-1",
+                nav_button_next: "absolute right-1",
+                table: "w-full border-collapse",
+                head_row: "flex",
+                head_cell: "text-muted-foreground rounded-md w-[60px] font-normal text-sm",
+                row: "flex w-full mt-2",
+                cell: "h-[60px] w-[60px] text-center text-sm p-0 relative",
+                day: "h-[60px] w-[60px] p-0 font-normal aria-selected:opacity-100 hover:bg-accent/20 rounded-md flex items-center justify-center",
+                day_range_end: "day-range-end",
+                day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+                day_today: "bg-accent/30 text-accent-foreground font-bold",
+                day_outside: "day-outside text-muted-foreground opacity-50",
+                day_disabled: "text-muted-foreground opacity-50",
+                day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
+                day_hidden: "invisible",
+              }}
+              components={{
+                Day: ({ date, ...props }: any) => {
+                  const dateStr = date.toDateString();
+                  const dayEvents = filteredEvents.filter(e => e.date.toDateString() === dateStr);
+                  const hasExam = dayEvents.some(e => e.type === "exam");
+                  const hasAssignment = dayEvents.some(e => e.type === "assignment");
+                  
+                  let className = "";
+                  if (hasExam && hasAssignment) {
+                    className = "has-both";
+                  } else if (hasExam) {
+                    className = "has-exam";
+                  } else if (hasAssignment) {
+                    className = "has-assignment";
+                  }
 
-            {/* Eventos del día */}
-            <div className="lg:w-1/3">
-              <Card>
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-lg">
-                    {selectedDate 
-                      ? selectedDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })
-                      : 'Selecciona una fecha'}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {selectedDateEvents.length > 0 ? (
-                    <div className="space-y-3 max-h-[500px] overflow-y-auto">
-                      {selectedDateEvents.map((event) => (
-                        <div 
-                          key={event.id} 
-                          className="p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors border-l-4"
-                          style={{ borderLeftColor: event.color }}
-                        >
-                          <div className="flex items-start justify-between gap-2 mb-2">
-                            <p className="font-medium text-sm">{event.title}</p>
-                            <Badge className={typeColors[event.type]} variant="secondary">
-                              {typeLabels[event.type]}
-                            </Badge>
-                          </div>
-                          <p className="text-xs text-muted-foreground mb-2">{event.course}</p>
-                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                            <Clock className="h-3 w-3" />
-                            <span>{event.time}</span>
-                          </div>
-                        </div>
-                      ))}
+                  return (
+                    <div className={className}>
+                      <button {...props} className={props.className}>
+                        {date.getDate()}
+                      </button>
                     </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground text-center py-8">
-                      No hay eventos para esta fecha
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
+                  );
+                },
+              }}
+            />
           </div>
         </div>
       </main>

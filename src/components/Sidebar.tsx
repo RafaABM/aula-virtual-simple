@@ -1,4 +1,4 @@
-import { Home, BookOpen, Calendar, Settings, User, Clock, Award } from "lucide-react";
+import { Home, BookOpen, Calendar, ExternalLink, Clock, Award } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import logo from "@/assets/usm-logo.png";
@@ -9,8 +9,7 @@ const navItems = [
   { title: "Calendario", icon: Calendar, path: "/calendario" },
   { title: "Horario", icon: Clock, path: "/horario" },
   { title: "Calificaciones", icon: Award, path: "/calificaciones" },
-  { title: "Perfil", icon: User, path: "/perfil" },
-  { title: "Configuración", icon: Settings, path: "/configuracion" },
+  { title: "Accesos", icon: ExternalLink, path: "/accesos" },
 ];
 
 export function Sidebar() {

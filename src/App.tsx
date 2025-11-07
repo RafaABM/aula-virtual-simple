@@ -8,6 +8,7 @@ import Courses from "./pages/Courses";
 import CalendarPage from "./pages/CalendarPage";
 import SchedulePage from "./pages/SchedulePage";
 import GradesPage from "./pages/GradesPage";
+import AccesosPage from "./pages/AccesosPage";
 import CourseDetail from "./pages/CourseDetail";
 import NotFound from "./pages/NotFound";
 
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/calendario" element={<CalendarPage />} />
           <Route path="/horario" element={<SchedulePage />} />
           <Route path="/calificaciones" element={<GradesPage />} />
+          <Route path="/accesos" element={<AccesosPage />} />
           <Route path="/asignatura/:courseId" element={<CourseDetail />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
