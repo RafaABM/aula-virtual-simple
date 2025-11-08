@@ -4,73 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { ChevronRight, TrendingUp, TrendingDown, Minus } from "lucide-react";
-
-interface Grade {
-  id: string;
-  name: string;
-  grade: number;
-  weight: number;
-  date: string;
-}
-
-interface CourseGrades {
-  courseId: string;
-  courseName: string;
-  courseCode: string;
-  color: string;
-  grades: Grade[];
-  average: number;
-}
-
-const coursesGrades: CourseGrades[] = [
-  {
-    courseId: "ing-software",
-    courseName: "Estructuras de Datos",
-    courseCode: "INF-240",
-    color: "#3b82f6",
-    average: 5.8,
-    grades: [
-      { id: "1", name: "Tarea 1", grade: 6.2, weight: 15, date: "10 Sep 2024" },
-      { id: "2", name: "Certamen 1", grade: 5.5, weight: 30, date: "25 Sep 2024" },
-      { id: "3", name: "Tarea 2", grade: 6.0, weight: 15, date: "05 Oct 2024" }
-    ]
-  },
-  {
-    courseId: "desarrollo-web",
-    courseName: "Desarrollo Web",
-    courseCode: "INF-322",
-    color: "#8b5cf6",
-    average: 6.3,
-    grades: [
-      { id: "1", name: "Proyecto 1", grade: 6.5, weight: 25, date: "15 Sep 2024" },
-      { id: "2", name: "Certamen 1", grade: 6.0, weight: 30, date: "28 Sep 2024" },
-      { id: "3", name: "Tarea 1", grade: 6.5, weight: 15, date: "08 Oct 2024" }
-    ]
-  },
-  {
-    courseId: "ia",
-    courseName: "Inteligencia Artificial",
-    courseCode: "INF-352",
-    color: "#ec4899",
-    average: 5.5,
-    grades: [
-      { id: "1", name: "Tarea 1", grade: 5.8, weight: 20, date: "12 Sep 2024" },
-      { id: "2", name: "Certamen 1", grade: 5.2, weight: 35, date: "30 Sep 2024" }
-    ]
-  },
-  {
-    courseId: "bd",
-    courseName: "Bases de Datos",
-    courseCode: "INF-239",
-    color: "#10b981",
-    average: 6.1,
-    grades: [
-      { id: "1", name: "Tarea 1", grade: 6.3, weight: 15, date: "08 Sep 2024" },
-      { id: "2", name: "Certamen 1", grade: 6.0, weight: 30, date: "22 Sep 2024" },
-      { id: "3", name: "Proyecto SQL", grade: 6.2, weight: 20, date: "01 Oct 2024" }
-    ]
-  }
-];
+import { courses, coursesGrades } from "@/data/courses";
 
 const getGradeStatus = (average: number) => {
   if (average >= 6.0) return { icon: TrendingUp, color: "text-success", label: "Aprobado" };
@@ -105,12 +39,15 @@ const GradesPage = () => {
 
         <div className="p-6">
           <div className="grid gap-4">
-            {coursesGrades.map((course) => {
-              const status = getGradeStatus(course.average);
+            {coursesGrades.map((courseGrade) => {
+              const course = courses.find(c => c.id === courseGrade.courseId);
+              if (!course) return null;
+              
+              const status = getGradeStatus(courseGrade.average);
               const StatusIcon = status.icon;
               
               return (
-                <Card key={course.courseId}>
+                <Card key={courseGrade.courseId}>
                   <CardHeader className="pb-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
@@ -119,13 +56,13 @@ const GradesPage = () => {
                           style={{ backgroundColor: course.color + '20' }}
                         >
                           <span className="font-bold text-lg" style={{ color: course.color }}>
-                            {course.average.toFixed(1)}
+                            {courseGrade.average.toFixed(1)}
                           </span>
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <CardTitle className="text-lg">{course.courseName}</CardTitle>
-                            <Badge variant="outline">{course.courseCode}</Badge>
+                            <CardTitle className="text-lg">{course.title}</CardTitle>
+                            <Badge variant="outline">{course.code}</Badge>
                           </div>
                           <div className="flex items-center gap-2 mt-1">
                             <StatusIcon className={`h-4 w-4 ${status.color}`} />
@@ -133,7 +70,7 @@ const GradesPage = () => {
                           </div>
                         </div>
                       </div>
-                      <Link to={`/asignatura/${course.courseId}`}>
+                      <Link to={`/asignatura/${courseGrade.courseId}?tab=calificaciones`}>
                         <Button variant="ghost" size="sm">
                           Ver detalles
                           <ChevronRight className="h-4 w-4 ml-1" />
@@ -143,7 +80,7 @@ const GradesPage = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2">
-                      {course.grades.map((grade) => (
+                      {courseGrade.grades.map((grade) => (
                         <div
                           key={grade.id}
                           className="flex items-center justify-between p-3 rounded-lg bg-muted/50"

@@ -26,6 +26,58 @@ export interface Material {
   dueDate?: string;
 }
 
+export interface Grade {
+  id: string;
+  name: string;
+  grade: number;
+  weight: number;
+  date: string;
+}
+
+export interface CourseGrades {
+  courseId: string;
+  grades: Grade[];
+  average: number;
+}
+
+export const coursesGrades: CourseGrades[] = [
+  {
+    courseId: "ed-101",
+    average: 5.8,
+    grades: [
+      { id: "1", name: "Tarea 1", grade: 6.2, weight: 15, date: "10 Sep 2024" },
+      { id: "2", name: "Certamen 1", grade: 5.5, weight: 30, date: "25 Sep 2024" },
+      { id: "3", name: "Tarea 2", grade: 6.0, weight: 15, date: "05 Oct 2024" }
+    ]
+  },
+  {
+    courseId: "dw-401",
+    average: 6.3,
+    grades: [
+      { id: "1", name: "Proyecto 1", grade: 6.5, weight: 25, date: "15 Sep 2024" },
+      { id: "2", name: "Certamen 1", grade: 6.0, weight: 30, date: "28 Sep 2024" },
+      { id: "3", name: "Tarea 1", grade: 6.5, weight: 15, date: "08 Oct 2024" }
+    ]
+  },
+  {
+    courseId: "ia-501",
+    average: 5.5,
+    grades: [
+      { id: "1", name: "Tarea 1", grade: 5.8, weight: 20, date: "12 Sep 2024" },
+      { id: "2", name: "Certamen 1", grade: 5.2, weight: 35, date: "30 Sep 2024" }
+    ]
+  },
+  {
+    courseId: "bd-301",
+    average: 6.1,
+    grades: [
+      { id: "1", name: "Tarea 1", grade: 6.3, weight: 15, date: "08 Sep 2024" },
+      { id: "2", name: "Certamen 1", grade: 6.0, weight: 30, date: "22 Sep 2024" },
+      { id: "3", name: "Proyecto SQL", grade: 6.2, weight: 20, date: "01 Oct 2024" }
+    ]
+  }
+];
+
 export const courses: Course[] = [
   {
     id: "ed-101",

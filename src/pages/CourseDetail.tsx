@@ -1,6 +1,6 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useSearchParams } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
-import { courses } from "@/data/courses";
+import { courses, coursesGrades } from "@/data/courses";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +14,10 @@ import {
   ClipboardList,
   ArrowLeft,
   Calendar,
-  User
+  User,
+  TrendingUp,
+  TrendingDown,
+  Minus
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -36,9 +39,18 @@ const materialColors = {
   quiz: "text-pink-600"
 };
 
+const getGradeStatus = (average: number) => {
+  if (average >= 6.0) return { icon: TrendingUp, color: "text-success", label: "Aprobado" };
+  if (average >= 4.0) return { icon: Minus, color: "text-warning", label: "En riesgo" };
+  return { icon: TrendingDown, color: "text-destructive", label: "Reprobado" };
+};
+
 const CourseDetail = () => {
   const { courseId } = useParams();
+  const [searchParams] = useSearchParams();
   const course = courses.find(c => c.id === courseId);
+  const courseGrade = coursesGrades.find(cg => cg.courseId === courseId);
+  const defaultTab = searchParams.get('tab') || 'material';
 
   if (!course) {
     return (
@@ -95,11 +107,11 @@ const CourseDetail = () => {
         </header>
 
         <div className="p-8">
-          <Tabs defaultValue="material" className="w-full">
+          <Tabs defaultValue={defaultTab} className="w-full">
             <TabsList className="grid w-full max-w-2xl grid-cols-5">
               <TabsTrigger value="material">Material</TabsTrigger>
               <TabsTrigger value="tareas">Tareas</TabsTrigger>
-              <TabsTrigger value="notas">Notas</TabsTrigger>
+              <TabsTrigger value="calificaciones">Calificaciones</TabsTrigger>
               <TabsTrigger value="foros">Foros</TabsTrigger>
               <TabsTrigger value="encuestas">Encuestas</TabsTrigger>
             </TabsList>
@@ -127,8 +139,13 @@ const CourseDetail = () => {
                               key={material.id}
                               className="flex items-start gap-4 p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors"
                             >
-                              <div className={cn("mt-1", colorClass)}>
-                                <Icon className="h-5 w-5" />
+                              <div className="flex flex-col items-center gap-2">
+                                <div className={cn(colorClass)}>
+                                  <Icon className="h-5 w-5" />
+                                </div>
+                                <Button variant="ghost" size="icon" className="h-8 w-8">
+                                  <Download className="h-4 w-4" />
+                                </Button>
                               </div>
                               <div className="flex-1">
                                 <h4 className="font-medium text-foreground">{material.title}</h4>
@@ -146,9 +163,6 @@ const CourseDetail = () => {
                                   </div>
                                 )}
                               </div>
-                              <Button variant="ghost" size="icon">
-                                <Download className="h-4 w-4" />
-                              </Button>
                             </div>
                           );
                         })}
@@ -193,14 +207,57 @@ const CourseDetail = () => {
               </Card>
             </TabsContent>
 
-            <TabsContent value="notas" className="mt-8">
+            <TabsContent value="calificaciones" className="mt-8">
               <Card>
                 <CardHeader>
-                  <CardTitle>Calificaciones</CardTitle>
-                  <CardDescription>Tus notas en esta asignatura</CardDescription>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle>Calificaciones</CardTitle>
+                      <CardDescription>Tus notas en esta asignatura</CardDescription>
+                    </div>
+                    {courseGrade && (
+                      <div className="text-right">
+                        <p className="text-sm text-muted-foreground">Promedio</p>
+                        <p className="text-3xl font-bold" style={{ color: course.color }}>
+                          {courseGrade.average.toFixed(1)}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground">Las calificaciones se publicarán próximamente.</p>
+                  {courseGrade ? (
+                    <div className="space-y-3">
+                      {courseGrade.grades.map((grade) => {
+                        const status = getGradeStatus(grade.grade);
+                        const StatusIcon = status.icon;
+                        
+                        return (
+                          <div
+                            key={grade.id}
+                            className="flex items-center justify-between p-4 rounded-lg border border-border"
+                          >
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <p className="font-medium">{grade.name}</p>
+                                <StatusIcon className={`h-4 w-4 ${status.color}`} />
+                              </div>
+                              <p className="text-sm text-muted-foreground mt-1">
+                                Ponderación: {grade.weight}% • {grade.date}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-2xl font-bold" style={{ color: course.color }}>
+                                {grade.grade.toFixed(1)}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className="text-muted-foreground">Las calificaciones se publicarán próximamente.</p>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
