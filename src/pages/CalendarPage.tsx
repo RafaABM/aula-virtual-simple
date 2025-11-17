@@ -42,8 +42,8 @@ const initialEvents: CalendarEvent[] = [
   },
   {
     id: "2",
-    title: "Certamen de Inteligencia Artificial",
-    description: "Machine Learning y Redes Neuronales",
+    title: "Certamen de Desarrollo Web",
+    description: "HTML, CSS, JavaScript y React",
     date: new Date(2025, 10, 20),
     time: "14:00",
     type: "exam"
