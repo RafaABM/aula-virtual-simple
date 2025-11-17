@@ -34,50 +34,50 @@ interface CalendarEvent {
 const initialEvents: CalendarEvent[] = [
   {
     id: "1",
-    title: "Certamen de Cálculo",
-    description: "Capítulos 1-3: Límites y Derivadas",
-    date: new Date(2025, 10, 6),
-    time: "14:30",
-    type: "exam"
-  },
-  {
-    id: "2",
-    title: "Mate",
-    description: "",
-    date: new Date(2025, 10, 5),
-    time: "15:00",
+    title: "Tarea de Desarrollo Web",
+    description: "Proyecto Final: Aplicación Web Completa",
+    date: new Date(2025, 10, 18),
+    time: "23:59",
     type: "assignment"
   },
   {
+    id: "2",
+    title: "Certamen de Inteligencia Artificial",
+    description: "Machine Learning y Redes Neuronales",
+    date: new Date(2025, 10, 20),
+    time: "14:00",
+    type: "exam"
+  },
+  {
     id: "3",
-    title: "Certamen de Física",
-    description: "",
-    date: new Date(2025, 10, 6),
+    title: "Certamen de Estructuras de Datos",
+    description: "Listas enlazadas y complejidad algorítmica",
+    date: new Date(2025, 10, 25),
     time: "10:00",
     type: "exam"
   },
   {
     id: "4",
-    title: "Entrega Proyecto",
-    description: "",
-    date: new Date(2025, 10, 8),
+    title: "Proyecto de Bases de Datos",
+    description: "Diseño de Base de Datos - Sistema de Biblioteca",
+    date: new Date(2025, 10, 28),
     time: "23:59",
     type: "project"
   },
   {
     id: "5",
-    title: "Reunión de grupo",
-    description: "",
-    date: new Date(2025, 10, 11),
-    time: "16:00",
-    type: "project"
+    title: "Tarea de Algoritmos y Complejidad",
+    description: "Ejercicios de Divide y Vencerás",
+    date: new Date(2025, 10, 22),
+    time: "23:59",
+    type: "assignment"
   },
   {
     id: "6",
-    title: "trabajo de investigación",
-    description: "",
-    date: new Date(2025, 10, 13),
-    time: "23:59",
+    title: "Presentación Grupal - IA",
+    description: "Proyecto de Machine Learning",
+    date: new Date(2025, 10, 27),
+    time: "14:00",
     type: "project"
   }
 ];
